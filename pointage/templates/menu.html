@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Styled Buttons</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5; /* Light grey background */
+        }
+
+        button {
+            margin: 10px;
+            padding: 15px 20px;
+            font-size: 18px;
+            background-color: #34a4b0; /* Light blue button color */
+            color: #fff; /* White text color */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #257487; /* Darker blue on hover */
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #34a4b0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #d5d5d5; /* Choose your desired background color */
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+        }
+
+        .button {
+            padding: 10px;
+            background-color: #555; /* Choose your desired button color */
+            color: white;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+        <h2 style="color: black; padding: 10px; text-align: center;";>Station {{station}}</h2>
+    {% if request.user.profile.da == 1 %}
+    <div class="top-bar">
+        <a href="{% url 'menu_view'%}?station=1"><button >ALGER</button></a>
+        <a href="{% url 'menu_view' %}?station=2"><button >In Salah</button></a>
+        <a href="{% url 'menu_view'%}?station=3"><button >Ain Sefra</button></a>
+        <a href="{% url 'menu_view'%}?station=4"><button >Macheria</button></a>
+        <a href="{% url 'menu_view'%}?station=5"><button>Tamanrasset</button></a>
+    </div>
+    {% endif %}
+    <a href="{% url 'table_employe' id %}"><button>table d'employe</button></a>
+    <a href="{% url 'pointage' id %}"><button>table de pointage</button></a>
+    <a href="{% url 'add_employe' id %}"><button>ajouter employe</button></a>
+    <a href="{% url 'logout'  %}" class="back-button">Se déconnecter </a>
+</body>
+</html>

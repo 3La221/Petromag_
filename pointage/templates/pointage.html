@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pointage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        header {
+            padding: 10px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        table {
+            width: 80%;
+            max-width: 600px;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            text-align: center;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #ff9900;
+            font-size: 1em;
+        }
+        .today {
+           background-color: #34a4b0;;
+        }
+
+        td {
+            background-color: white;
+            color: black;
+            font-size: 0.8em;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .date-group {
+            display: flex;
+            flex-direction: row; /* Make them appear horizontally */
+            align-items: center;
+            margin-bottom: 5px; /* Add margin-bottom for spacing */
+        }
+
+        .date-group label {
+            margin-right: 10px; /* Add margin-right to separate label and select */
+        }
+
+        .date-group select {
+            height: 30px; /* Set a fixed height for the select box */
+            margin-left: 0; /* Remove margin-left to align the select box with the label */
+        }
+
+        td.date-group {
+            height: 40px; /* Set a fixed height for the td.date-group element */
+        }
+
+        input[type="submit"] {
+            margin-top: 20px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #34a4b0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .step-links a {
+            padding: 10px;
+            margin: 0 5px;
+            text-decoration: none;
+            color: #007BFF;
+            border: 1px solid #007BFF;
+            border-radius: 5px;
+        }
+
+        .step-links .current {
+            padding: 10px;
+            margin: 0 5px;
+            background-color: #007BFF;
+            color: white;
+            border: 1px solid #007BFF;
+            border-radius: 5px;
+        }
+
+        .back-button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #34a4b0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ date|date:"Y-m-d" }}</h1>
+    </header>
+    <form method="get" action="">
+        
+        <label for="query">Rechercher:</label>
+        <input type="text" id="query" name="query" placeholder="ID" required>
+        
+    </form>
+    <button id="modifyBtn"> Modifier </button>
+    <table>
+        <tr> 
+            <th>ID</th>
+            <th>Employe</th>
+            {% for d in date_range %}
+            {% if d == date %}
+            <th class="today"> {{d|date:"d"}}</th>
+            {% else %}
+            <th> {{d|date:"d"}}  </th>
+            {% endif %}
+            {% endfor %}
+        </tr>
+            <form  method="POST" >
+                {% csrf_token %}
+                {% for i in instances %}
+                <tr>
+                    <td>{{ i.ID }}</td>   
+                    <td>{{ i.Nom }} {{ i.Prenom }}</td> 
+                    {% for id, list in res.items %}
+                        {% if id == i.ID %}
+                            {% for date, result in list.items %}
+                                {% if result.is_editable %}
+                                    <td> 
+                                        <select id="{{ i.ID }}_{{ date }}" name="{{ i.ID }}_{{ date }}">
+                                            <option value="">-</option>
+                                            <option value="{{ result.code.ID }}" selected>{{ result.code.ID }}</option>
+                                            {% for code in codes %}
+                                                <option value="{{ code.ID }}">{{ code.ID }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                {% elif result.code.ID != null  %}
+                                    {% if result.date == today %}
+                                    <td> 
+                                        <select id="{{ i.ID }}_{{ date }}" name="{{ i.ID }}_{{ date }}" class="specific-select"  disabled >
+                                        
+                                            <option value="{{ result.code.ID }}" selected>{{ result.code.ID }}</option>
+                                            {% for code in codes %}
+                                                <option value="{{ code.ID }}">{{ code.ID }}</option>
+                                            {% endfor %}
+                                        </select>
+
+                                    </td>
+                                    
+                                    {% else %}
+                                    <td> <div>{{ result.code.ID }}</div></td>
+                                    {% endif %}
+                                    
+                                {% else %}
+                                    <td> 
+                                        <select id="{{ i.ID }}_{{ date }}" name="{{ i.ID }}_{{ date }}">
+                                                <option value="">-</option>
+                                                {% for code in codes %}
+                                                    <option value="{{ code.ID }}">{{ code.ID }}</option>
+                                                {% endfor %}
+                                        </select>
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                
+                <input type="submit" value="Soumettre">
+            </form>
+
+
+    
+    </table>
+    <table>
+        <tr>
+            <th>Code</th>
+            <th>descripton</th>
+        </tr>
+        {% for code in codes %}
+        <tr>
+            <td>{{code.ID}}</td>
+            <td>{{code.Description}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="{% url 'menu_view' %}" class="back-button">Retour</a>   
+</body>
+
+<script>
+    document.getElementById('modifyBtn').addEventListener('click', function() {
+        // Get the specific select elements you want to modify
+        var selectElements = document.querySelectorAll('.specific-select');
+        // Loop through each select element
+        selectElements.forEach(function(select) {
+            // Toggle the disabled attribute
+            select.disabled = !select.disabled;
+        });
+    });
+    // Function to handle the search functionality
+    function search() {
+        // Get the input value
+        var query = document.getElementById('query').value.toLowerCase();
+        // Get all table rows
+        var rows = document.querySelectorAll('table tr');
+
+        // Loop through each row
+        for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+            var id = rows[i].getElementsByTagName('td')[0].innerText.toLowerCase();
+            var name = rows[i].getElementsByTagName('td')[1].innerText.toLowerCase();
+            // Check if the query matches the ID or Name
+            if (id.includes(query) || name.includes(query)) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none'; // Hide the row if it doesn't match
+            }
+        }
+        
+    }
+
+    // Add event listener to the input field
+    document.getElementById('query').addEventListener('input', search);
+</script>
+</html>
